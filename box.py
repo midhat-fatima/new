@@ -72,7 +72,7 @@ def scramble(scr, len):
         elif(scr[x][0] == "B"):
             Mvt9()
 
-timer = tkinter.Text(tk, font=('times', 20, 'bold'),width=5, height=1 ,fg='red',bg='lightgreen' )
+timer = tkinter.Text(tk, font=('times', 20, 'bold'),width=6, height=1 ,fg='red',bg='lightgrey' )
 timer.insert(tkinter.INSERT, "Timer")
 timer.pack()
 
