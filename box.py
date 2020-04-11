@@ -19,12 +19,15 @@ style.map("M.TButton",foreground=[('pressed', 'green'), ('active', 'red')],backg
 moves   =  ["U", "D", "F", "B", "R", "L"]
 dir     =  ["", "'", "2"]
 sides   =  'bottom'
+topside =  'top'
 red     =  'red'
 orange  =  'orange'
 white   =  'white'
 green   =  'green'
 yellow  =  'yellow'
 blue    =  'blue'
+
+isPause =  False
 
 CC   =  []  
 cm1  =  []
@@ -36,6 +39,22 @@ j    = int(a/12)
 x    = int(a/22.5)
 y    = int(b/30)
 slen = random.randint(25, 28)
+
+def pause():
+    global isPause
+    isPause = not isPause
+
+def countdown():
+    t = 540
+    while t:
+        hr, sc = divmod(t, 120)
+        timeformat = '{:02d}:{:02d}'.format(hr, sc)
+        ttk.Label(tk, text = timeformat, background='white', foreground='red').place(x = 455,y = 10)
+        #print(timeformat, end='\r')
+        time.sleep(1)
+        if (not isPause): t -= 1
+    mb.showwarning("Game Over","You Loose")
+    tk.destroy()
 
 def ExitApplication():
     MsgBox = mb.askquestion ('Quit','Are you sure you want to exit the application',icon = 'warning')
@@ -72,26 +91,8 @@ def scramble(scr, len):
         elif(scr[x][0] == "B"):
             Mvt9()
 
-timer = tkinter.Text(tk, font=('times', 20, 'bold'),width=6, height=1 ,fg='red',bg='lightgrey' )
-timer.insert(tkinter.INSERT, "Timer")
-timer.pack()
-
-def show_time():
-    start = time.time()
-    seconds = 0
-    while True:
-        if time.time() - start > 1:
-            seconds += int(time.time() - start)
-            start = time.time()
-            cur_index = timer.index(tkinter.INSERT)
-            cur_index = str(int(cur_index[0]) - 1) + cur_index[1:]
-            timer.delete(cur_index, tkinter.INSERT)
-            timer.insert(tkinter.INSERT, str(int(seconds / 60)) + ":" + str(seconds % 60))
-            tk.update()
-t = threading.Thread(target=show_time)
-t.setDaemon(True)
-
-ttk.Button(tk,text='scramble',style="C.TButton",command=lambda :[scramble(scramble_replace(scramble_gen()),slen),t.start()]).pack()
+ttk.Button(tk, text="Pause",style= 'C.TButton',command=pause).pack(side=sides)
+ttk.Button(tk,text='scramble',style="C.TButton",command=lambda :[scramble(scramble_replace(scramble_gen()),slen),count_thread.start()]).pack(side=sides)
 
 tk.geometry('1000x700')
 fond = tkinter.Canvas(tk, width=b , heigh=a ,bg='#E4E4E4')
@@ -236,6 +237,9 @@ def Opt_Affichage () :
 
 # Cette fonction effectue un mouvement vers l'avant de la première colonne.
 def Mvt1():
+    global isPause
+    if isPause:
+        return
     global CC,cm1
     cm1=[[[CC[3][0][0],CC[3][0][1],CC[3][0][2]],[CC[0][1][0],CC[0][1][1],CC[0][1][2]],[CC[0][2][0],CC[0][2][1],CC[0][2][2]]], 
          [[CC[5][2][2],CC[5][2][1],CC[5][2][0]],[CC[1][1][0],CC[1][1][1],CC[1][1][2]],[CC[1][2][0],CC[1][2][1],CC[1][2][2]]],
@@ -251,6 +255,9 @@ def Mvt1():
 
 # Cette fonction effectue un mouvement vers l'arrière de la première colonne.
 def Mvt2():
+    global isPause
+    if isPause:
+        return
     global CC,cm2
     
     cm2=[[[CC[5][2][0],CC[5][2][1],CC[5][2][2]],[CC[0][1][0],CC[0][1][1],CC[0][1][2]],[CC[0][2][0],CC[0][2][1],CC[0][2][2]]],
@@ -265,6 +272,9 @@ def Mvt2():
         
 # Mvt3 correspond au mouvement vers l'avant de la 2ème colonne.
 def Mvt3():
+    global isPause
+    if isPause:
+        return
     global CC,cm3
     cm3=[[[CC[0][0][0],CC[0][0][1],CC[0][0][2]],[CC[3][1][0],CC[3][1][1],CC[3][1][2]],[CC[0][2][0],CC[0][2][1],CC[0][2][2]]],
          [[CC[1][0][0],CC[1][0][1],CC[1][0][2]],[CC[5][1][2],CC[5][1][1],CC[5][1][0]],[CC[1][2][0],CC[1][2][1],CC[1][2][2]]],
@@ -294,6 +304,9 @@ def Mvt4():
 
 # Mvt5 correspond au mouvement vers l'avant de la 3ème colonne.
 def Mvt5 ():
+    global isPause
+    if isPause:
+        return
     global CC ,cm5
     cm5=[[[CC[0][0][0],CC[0][0][1],CC[0][0][2]],[CC[0][1][0],CC[0][1][1],CC[0][1][2]],[CC[3][2][0],CC[3][2][1],CC[3][2][2]]],
          [[CC[1][0][0],CC[1][0][1],CC[1][0][2]],[CC[1][1][0],CC[1][1][1],CC[1][1][2]],[CC[5][0][2],CC[5][0][1],CC[5][0][0]]],
@@ -308,19 +321,25 @@ def Mvt5 ():
 
 # Mvt6 correspond au mouvement vers l'arrière de la 3ème colonne.
 def Mvt6():
-   global CC,cm6
-   cm6=[[[CC[0][0][0],CC[0][0][1],CC[0][0][2]],[CC[0][1][0],CC[0][1][1],CC[0][1][2]],[CC[5][0][2],CC[5][0][1],CC[5][0][0]]],
+    global isPause
+    if isPause:
+        return
+    global CC,cm6
+    cm6=[[[CC[0][0][0],CC[0][0][1],CC[0][0][2]],[CC[0][1][0],CC[0][1][1],CC[0][1][2]],[CC[5][0][2],CC[5][0][1],CC[5][0][0]]],
         [[CC[1][0][0],CC[1][0][1],CC[1][0][2]],[CC[1][1][0],CC[1][1][1],CC[1][1][2]],[CC[3][2][0],CC[3][2][1],CC[3][2][2]]],
         [[CC[2][0][0],CC[2][0][1],CC[2][0][2]],[CC[2][1][0],CC[2][1][1],CC[2][1][2]],[CC[2][2][0],CC[2][2][1],CC[2][2][2]]],
         [[CC[3][0][0],CC[3][0][1],CC[3][0][2]],[CC[3][1][0],CC[3][1][1],CC[3][1][2]],[CC[0][2][0],CC[0][2][1],CC[0][2][2]]],
         [[CC[4][2][0],CC[4][1][0],CC[4][0][0]],[CC[4][2][1],CC[4][1][1],CC[4][0][1]],[CC[4][2][2],CC[4][1][2],CC[4][0][2]]],
         [[CC[1][2][2],CC[1][2][1],CC[1][2][0]],[CC[5][1][0],CC[5][1][1],CC[5][1][2]],[CC[5][2][0],CC[5][2][1],CC[5][2][2]]]]
-   CC=cm6
+    CC=cm6
 
-   Opt_Affichage ()
+    Opt_Affichage ()
     
 # Mvt7 correspond au mouvement vers la gauche de la 1ère ligne.
 def Mvt7():
+    global isPause
+    if isPause:
+        return
     global CC ,cm7
     cm7=[[[CC[0][0][2],CC[0][1][2],CC[0][2][2]],[CC[0][0][1],CC[0][1][1],CC[0][2][1]],[CC[0][0][0],CC[0][1][0],CC[0][2][0]]],
          [[CC[1][0][0],CC[1][0][1],CC[1][0][2]],[CC[1][1][0],CC[1][1][1],CC[1][1][2]],[CC[1][2][0],CC[1][2][1],CC[1][2][2]]],
@@ -335,6 +354,9 @@ def Mvt7():
 
 # Mvt8 correspond au mouvement vers la droite de la 1ère ligne.
 def Mvt8():
+    global isPause
+    if isPause:
+        return
     global CC ,cm8
     cm8=[[[CC[0][2][0],CC[0][1][0],CC[0][0][0]],[CC[0][2][1],CC[0][1][1],CC[0][0][1]],[CC[0][2][2],CC[0][1][2],CC[0][0][2]]],
          [[CC[1][0][0],CC[1][0][1],CC[1][0][2]],[CC[1][1][0],CC[1][1][1],CC[1][1][2]],[CC[1][2][0],CC[1][2][1],CC[1][2][2]]],
@@ -349,6 +371,9 @@ def Mvt8():
 
  #Mvt9 correspond au mouvement vers la gauche de la 2ème ligne.
 def Mvt9():
+    global isPause
+    if isPause:
+        return
     global CC ,cm9
     cm9=[[[CC[0][0][0],CC[0][0][1],CC[0][0][2]],[CC[0][1][0],CC[0][1][1],CC[0][1][2]],[CC[0][2][0],CC[0][2][1],CC[0][2][2]]],
          [[CC[1][0][0],CC[1][0][1],CC[1][0][2]],[CC[1][1][0],CC[1][1][1],CC[1][1][2]],[CC[1][2][0],CC[1][2][1],CC[1][2][2]]],
@@ -363,6 +388,9 @@ def Mvt9():
 
 # Mvt 10 correspond au mouvement vers la droite de la 2ème ligne.
 def Mvt10():
+    global isPause
+    if isPause:
+        return
     global CC ,cm10
     cm10=[[[CC[0][0][0],CC[0][0][1],CC[0][0][2]],[CC[0][1][0],CC[0][1][1],CC[0][1][2]],[CC[0][2][0],CC[0][2][1],CC[0][2][2]]],
           [[CC[1][0][0],CC[1][0][1],CC[1][0][2]],[CC[1][1][0],CC[1][1][1],CC[1][1][2]],[CC[1][2][0],CC[1][2][1],CC[1][2][2]]],
@@ -377,6 +405,9 @@ def Mvt10():
 
 # Mvt 11 correspond au mouvement vers la gauche de la 3ème ligne.
 def Mvt11():
+    global isPause
+    if isPause:
+        return
     global CC ,cm11
     cm11=[[[CC[0][0][0],CC[0][0][1],CC[0][0][2]],[CC[0][1][0],CC[0][1][1],CC[0][1][2]],[CC[0][2][0],CC[0][2][1],CC[0][2][2]]],
           [[CC[1][2][0],CC[1][1][0],CC[1][0][0]],[CC[1][2][1],CC[1][1][1],CC[1][0][1]],[CC[1][2][2],CC[1][1][2],CC[1][0][2]]],
@@ -391,6 +422,9 @@ def Mvt11():
 
 # Mvt 12 correspond au mouvement vers la droite de la 3ème ligne.
 def Mvt12():
+    global isPause
+    if isPause:
+        return
     global CC ,cm12
     cm12=[[[CC[0][0][0],CC[0][0][1],CC[0][0][2]],[CC[0][1][0],CC[0][1][1],CC[0][1][2]],[CC[0][2][0],CC[0][2][1],CC[0][2][2]]],
           [[CC[1][0][2],CC[1][1][2],CC[1][2][2]],[CC[1][0][1],CC[1][1][1],CC[1][2][1]],[CC[1][0][0],CC[1][1][0],CC[1][2][0]]],
@@ -404,6 +438,9 @@ def Mvt12():
      
 
 def Mvt13():
+    global isPause
+    if isPause:
+        return
     global CC,cm13
     cm13=[[[CC[4][2][0],CC[0][0][1],CC[0][0][2]],[CC[4][2][1],CC[0][1][1],CC[0][1][2]],[CC[4][2][2],CC[0][2][1],CC[0][2][2]]],
           [[CC[1][0][0],CC[1][0][1],CC[2][0][0]],[CC[1][1][0],CC[1][1][1],CC[2][0][1]],[CC[1][2][0],CC[1][2][1],CC[2][0][2]]],
@@ -416,6 +453,9 @@ def Mvt13():
     Opt_Affichage ()     
         
 def Mvt14():
+    global isPause
+    if isPause:
+        return
     global CC,cm14
     cm14=[[[CC[2][0][2],CC[0][0][1],CC[0][0][2]],[CC[2][0][1],CC[0][1][1],CC[0][1][2]],[CC[2][0][0],CC[0][2][1],CC[0][2][2]]],
           [[CC[1][0][0],CC[1][0][1],CC[4][2][2]],[CC[1][1][0],CC[1][1][1],CC[4][2][1]],[CC[1][2][0],CC[1][2][1],CC[4][2][0]]],
@@ -429,6 +469,9 @@ def Mvt14():
   
         
 def Mvt15():
+    global isPause
+    if isPause:
+        return
     global CC,cm15
     cm15=[[[CC[0][0][0],CC[4][1][0],CC[0][0][2]],[CC[0][1][0],CC[4][1][1],CC[0][1][2]],[CC[0][2][0],CC[4][1][2],CC[0][2][2]]],
           [[CC[1][0][0],CC[2][1][0],CC[1][0][2]],[CC[1][1][0],CC[2][1][1],CC[1][1][2]],[CC[1][2][0],CC[2][1][2],CC[1][2][2]]],
@@ -442,6 +485,9 @@ def Mvt15():
         
 
 def Mvt16():
+    global isPause
+    if isPause:
+        return
     global CC,cm16
     cm16=[[[CC[0][0][0],CC[2][1][2],CC[0][0][2]],[CC[0][1][0],CC[2][1][1],CC[0][1][2]],[CC[0][2][0],CC[2][1][0],CC[0][2][2]]],
           [[CC[1][0][0],CC[4][1][2],CC[1][0][2]],[CC[1][1][0],CC[4][1][1],CC[1][1][2]],[CC[1][2][0],CC[4][1][0],CC[1][2][2]]],
@@ -468,9 +514,10 @@ def Mvt17():
 
 
 def Mvt18():
-
+    global isPause
+    if isPause:
+        return
     global CC,cm18
-    
     cm18=[[[CC[0][0][0],CC[0][0][1],CC[2][2][2]],[CC[0][1][0],CC[0][1][1],CC[2][2][1]],[CC[0][2][0],CC[0][2][1],CC[2][2][0]]],
           [[CC[4][0][2],CC[1][0][1],CC[1][0][2]],[CC[4][0][1],CC[1][1][1],CC[1][1][2]],[CC[4][0][0],CC[1][2][1],CC[1][2][2]]],
           [[CC[2][0][0],CC[2][0][1],CC[2][0][2]],[CC[2][1][0],CC[2][1][1],CC[2][1][2]],[CC[1][0][0],CC[1][1][0],CC[1][2][0]]],
@@ -490,8 +537,11 @@ photo3 = ImageTk.PhotoImage(Image.open("arrow4.png"))
 
 canv.create_image(20,20, image=photo) 
 
+count_thread = threading.Thread(None, countdown)
+
 
 CubeResolue ()
 update()
 AfficheGraphique3D ()
+
 tk.mainloop()
